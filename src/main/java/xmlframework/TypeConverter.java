@@ -22,13 +22,13 @@ public final class TypeConverter {
     private TypeConverter() {}
 
     public static <T> String toString(T value) {
-        return value == null ? null : value.toString();
+        return value == null ? "" : value.toString();
     }
 
     @SuppressWarnings("unchecked")
     public static <T> T fromString(String value, Class<T> type) {
         if (value == null) {
-            return null;
+            return NullValues.of(type);
         }
         Function<String, ?> func = STRATEGIES.get(type);
         if (func != null) {

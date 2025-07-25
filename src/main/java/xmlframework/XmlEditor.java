@@ -21,6 +21,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+// Null-object wrapper for DOM nodes
+import xmlframework.DomNode;
+import xmlframework.RealDomNode;
+import xmlframework.NullDomNode;
+
 public class XmlEditor {
     private final Document document;
     private final XPath xpath = XPathFactory.newInstance().newXPath();
@@ -49,40 +54,30 @@ public class XmlEditor {
         transformer.transform(new DOMSource(document), new StreamResult(Files.newOutputStream(path)));
     }
 
+    private DomNode nodeAt(String expr) throws XPathExpressionException {
+        Node n = (Node) xpath.evaluate(expr, document, XPathConstants.NODE);
+        return n == null ? NullDomNode.INSTANCE : new RealDomNode(n);
+    }
+
     public <T> void addElement(String parentXPath, String name, T value) throws XPathExpressionException {
-        Node parent = (Node) xpath.evaluate(parentXPath, document, XPathConstants.NODE);
-        if (parent == null) {
-            throw new IllegalArgumentException("Parent not found: " + parentXPath);
-        }
+        DomNode parent = nodeAt(parentXPath);
         Element element = document.createElement(name);
         element.setTextContent(TypeConverter.toString(value));
         parent.appendChild(element);
     }
 
     public <T> T getValue(String elementXPath, Class<T> type) throws XPathExpressionException {
-        Node node = (Node) xpath.evaluate(elementXPath, document, XPathConstants.NODE);
-        if (node == null) {
-            return null;
-        }
+        DomNode node = nodeAt(elementXPath);
         return TypeConverter.fromString(node.getTextContent(), type);
     }
 
     public <T> void updateValue(String elementXPath, T value) throws XPathExpressionException {
-        Node node = (Node) xpath.evaluate(elementXPath, document, XPathConstants.NODE);
-        if (node == null) {
-            throw new IllegalArgumentException("Element not found: " + elementXPath);
-        }
+        DomNode node = nodeAt(elementXPath);
         node.setTextContent(TypeConverter.toString(value));
     }
 
     public void delete(String elementXPath) throws XPathExpressionException {
-        Node node = (Node) xpath.evaluate(elementXPath, document, XPathConstants.NODE);
-        if (node == null) {
-            throw new IllegalArgumentException("Element not found: " + elementXPath);
-        }
-        Node parent = node.getParentNode();
-        if (parent != null) {
-            parent.removeChild(node);
-        }
+        DomNode node = nodeAt(elementXPath);
+        node.remove();
     }
 }
