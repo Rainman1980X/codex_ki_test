@@ -3,6 +3,7 @@ package xmlframework;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.io.StringWriter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -84,5 +85,19 @@ public class XmlEditor {
         if (parent != null) {
             parent.removeChild(node);
         }
+    }
+
+    /**
+     * Returns the current document as an indented XML string.
+     *
+     * @return XML representation of the document
+     * @throws TransformerException if the transformation fails
+     */
+    public String toXmlString() throws TransformerException {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        StringWriter writer = new StringWriter();
+        transformer.transform(new DOMSource(document), new StreamResult(writer));
+        return writer.toString();
     }
 }
