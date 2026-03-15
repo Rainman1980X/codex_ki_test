@@ -15,6 +15,7 @@ public class Example {
         editor.updateValue("/person/name", "Bob");
         editor.delete("/person/age");
 
+        System.out.println(editor.toXmlString());
         editor.save(Paths.get("example.xml"));
     }
 }

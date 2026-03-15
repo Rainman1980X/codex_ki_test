@@ -14,3 +14,6 @@ java -cp out xmlframework.Example
 ```
 
 Running the example will create `example.xml` in the project directory.
+
+The `XmlEditor` also provides `toXmlString()` to retrieve the current
+document as a formatted string without saving it to disk.
